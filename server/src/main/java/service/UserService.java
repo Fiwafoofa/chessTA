@@ -1,8 +1,8 @@
 package service;
 
-import Response.AlreadyTakenException;
-import Response.BadRequestException;
-import Response.UnauthorizedException;
+import response.AlreadyTakenException;
+import response.BadRequestException;
+import response.UnauthorizedException;
 import dataaccess.DAOFactory;
 import model.AuthData;
 import model.UserData;

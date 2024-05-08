@@ -1,8 +1,8 @@
 package service;
 
-import Request.CreateGameRequest;
-import Request.JoinGameRequest;
-import Response.*;
+import request.CreateGameRequest;
+import request.JoinGameRequest;
+import response.*;
 import dataaccess.DAOFactory;
 import model.AuthData;
 import model.GameData;

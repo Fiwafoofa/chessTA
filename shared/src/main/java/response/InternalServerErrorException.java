@@ -1,4 +1,4 @@
-package Response;
+package response;
 
 public class InternalServerErrorException extends Exception {
 
