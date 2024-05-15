@@ -72,16 +72,12 @@ public class ChessPiece {
         Collection<ChessMove> validMoves = new HashSet<>();
 
         switch (chessPieceAtPosition.getPieceType()) {
-//            case KING -> getKingMoves(board, myPosition, validMoves);
-//            case QUEEN -> getQueenMoves(board, myPosition, validMoves);
-//            case ROOK -> getRookMoves(board, myPosition, validMoves);
-//            case KNIGHT -> getKnightMoves(board, myPosition, validMoves);
-//            case BISHOP -> getBishopMoves(board, myPosition, validMoves);
-//            case PAWN -> getPawnMoves(board, myPosition, validMoves);
-            case KING -> {
-                Integer[][] offsets = {{-1, 1}, {0, 1}, {1, 1},  {-1, 0}, {1, 0},  {-1, -1}, {0, -1}, {1, -1}};
-                getSlidingMoves(board, myPosition, validMoves, offsets);
-            }
+            case KING -> getKingMoves(board, myPosition, validMoves);
+            case QUEEN -> getQueenMoves(board, myPosition, validMoves);
+            case ROOK -> getRookMoves(board, myPosition, validMoves);
+            case KNIGHT -> getKnightMoves(board, myPosition, validMoves);
+            case BISHOP -> getBishopMoves(board, myPosition, validMoves);
+            case PAWN -> getPawnMoves(board, myPosition, validMoves);
         }
         return validMoves;
     }
