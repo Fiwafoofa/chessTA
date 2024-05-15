@@ -2,9 +2,13 @@ package response;
 
 public class CreateGameResponse {
 
-  Integer gameID;
+  private Integer gameID;
 
   public CreateGameResponse(Integer gameID) {
     this.gameID = gameID;
+  }
+
+  public Integer getGameID() {
+    return gameID;
   }
 }

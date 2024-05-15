@@ -72,12 +72,16 @@ public class ChessPiece {
         Collection<ChessMove> validMoves = new HashSet<>();
 
         switch (chessPieceAtPosition.getPieceType()) {
-            case KING -> getKingMoves(board, myPosition, validMoves);
-            case QUEEN -> getQueenMoves(board, myPosition, validMoves);
-            case ROOK -> getRookMoves(board, myPosition, validMoves);
-            case KNIGHT -> getKnightMoves(board, myPosition, validMoves);
-            case BISHOP -> getBishopMoves(board, myPosition, validMoves);
-            case PAWN -> getPawnMoves(board, myPosition, validMoves);
+//            case KING -> getKingMoves(board, myPosition, validMoves);
+//            case QUEEN -> getQueenMoves(board, myPosition, validMoves);
+//            case ROOK -> getRookMoves(board, myPosition, validMoves);
+//            case KNIGHT -> getKnightMoves(board, myPosition, validMoves);
+//            case BISHOP -> getBishopMoves(board, myPosition, validMoves);
+//            case PAWN -> getPawnMoves(board, myPosition, validMoves);
+            case KING -> {
+                Integer[][] offsets = {{-1, 1}, {0, 1}, {1, 1},  {-1, 0}, {1, 0},  {-1, -1}, {0, -1}, {1, -1}};
+                getSlidingMoves(board, myPosition, validMoves, offsets);
+            }
         }
         return validMoves;
     }
@@ -183,30 +187,30 @@ public class ChessPiece {
         };
         getOffsetMoves(chessBoard, currPosition, validMoves, offsets);
 
-        if (!hasMoved) {
-            int rookRow = teamColor == ChessGame.TeamColor.WHITE ? 1 : chessBoard.BOARD_SIZE;
-            ChessPiece leftRook = chessBoard.getPiece(new ChessPosition(rookRow, 1));
-            ChessPiece rightRook = chessBoard.getPiece(new ChessPosition(rookRow, 8));
-
-            if (leftRook != null && !leftRook.hasMoved) {
-                // Check for spaces
-                ChessPiece pieceOne = chessBoard.getPiece(new ChessPosition(rookRow, 2));
-                ChessPiece pieceTwo = chessBoard.getPiece(new ChessPosition(rookRow, 3));
-                ChessPiece pieceThree = chessBoard.getPiece(new ChessPosition(rookRow, 4));
-                if (pieceOne == null && pieceTwo == null && pieceThree == null) {
-                    validMoves.add(new ChessMove(currPosition, new ChessPosition(rookRow, 3), null));
-                }
-            }
-
-            if (rightRook != null && !rightRook.hasMoved) {
-                // Check for spaces
-                ChessPiece pieceOne = chessBoard.getPiece(new ChessPosition(rookRow, 6));
-                ChessPiece pieceTwo = chessBoard.getPiece(new ChessPosition(rookRow, 7));
-                if (pieceOne == null && pieceTwo == null) {
-                    validMoves.add(new ChessMove(currPosition, new ChessPosition(rookRow, 7), null));
-                }
-            }
-        }
+//        if (!hasMoved) {
+//            int rookRow = teamColor == ChessGame.TeamColor.WHITE ? 1 : chessBoard.BOARD_SIZE;
+//            ChessPiece leftRook = chessBoard.getPiece(new ChessPosition(rookRow, 1));
+//            ChessPiece rightRook = chessBoard.getPiece(new ChessPosition(rookRow, 8));
+//
+//            if (leftRook != null && !leftRook.hasMoved) {
+//                // Check for spaces
+//                ChessPiece pieceOne = chessBoard.getPiece(new ChessPosition(rookRow, 2));
+//                ChessPiece pieceTwo = chessBoard.getPiece(new ChessPosition(rookRow, 3));
+//                ChessPiece pieceThree = chessBoard.getPiece(new ChessPosition(rookRow, 4));
+//                if (pieceOne == null && pieceTwo == null && pieceThree == null) {
+//                    validMoves.add(new ChessMove(currPosition, new ChessPosition(rookRow, 3), null));
+//                }
+//            }
+//
+//            if (rightRook != null && !rightRook.hasMoved) {
+//                // Check for spaces
+//                ChessPiece pieceOne = chessBoard.getPiece(new ChessPosition(rookRow, 6));
+//                ChessPiece pieceTwo = chessBoard.getPiece(new ChessPosition(rookRow, 7));
+//                if (pieceOne == null && pieceTwo == null) {
+//                    validMoves.add(new ChessMove(currPosition, new ChessPosition(rookRow, 7), null));
+//                }
+//            }
+//        }
     }
 
     private void getKnightMoves(ChessBoard chessBoard, ChessPosition currPosition, Collection<ChessMove> validMoves) {

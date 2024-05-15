@@ -6,8 +6,9 @@ public class Main {
         if (args.length < 1) {
             System.out.println("Using default localhost:8080");
             domainName = "localhost:8080";
+        } else {
+            domainName = args[0];
         }
-        domainName = args[0];
         new ChessClient(domainName).run();
     }
 }

@@ -2,9 +2,13 @@ package response;
 
 public class FailureResponse {
 
-  String message;
+  private String message;
 
   public FailureResponse(String message) {
     this.message = message;
+  }
+
+  public String getMessage() {
+    return message;
   }
 }

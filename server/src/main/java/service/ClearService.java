@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.DAOFactory;
-import dataaccess.memory.MemoryAuthDAO;
 
 public class ClearService {
 
