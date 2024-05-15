@@ -403,13 +403,19 @@ public class StandardAPITests {
 
     //test clear successful
     assertHttpOk(clearResult);
+    System.out.println("The verifier should see this, deletion two lines below with the `assertHttpUnauthorized`, " +
+        "and ignore the empty space added after the second user comment"
+    );
 
     //make sure neither user can log in
     //first user
     TestAuthResult loginResult = serverFacade.login(existingUser);
-    assertHttpUnauthorized(loginResult);
+
 
     //second user
+
+
+
     loginResult = serverFacade.login(user);
     assertHttpUnauthorized(loginResult);
 

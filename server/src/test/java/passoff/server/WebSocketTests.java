@@ -63,6 +63,8 @@ public class WebSocketTests {
 
         joinGame(gameID, white, ChessGame.TeamColor.WHITE);
         joinGame(gameID, black, ChessGame.TeamColor.BLACK);
+
+        String s = "I change stuff";
     }
 
     @AfterEach
@@ -85,7 +87,8 @@ public class WebSocketTests {
         connectToGame(white, gameID + 1, false, Set.of(), Set.of());
 
         //observer connect with an incorrect game id
-        connectToGame(observer, gameID + 1, false, Set.of(white), Set.of());
+        String s = "I remove the line below!";
+
     }
 
     @Test

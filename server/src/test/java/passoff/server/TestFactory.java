@@ -4,6 +4,9 @@ import com.google.gson.GsonBuilder;
 
 public class TestFactory {
 
+    public static String VERIFIER_TEST = "The verifier should ignore this";
+
+
     public static Long getMessageTime() {
         /*
          * Changing this will change how long tests will wait for the server to send messages.

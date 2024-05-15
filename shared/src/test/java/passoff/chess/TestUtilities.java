@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class TestUtilities {
+
+    public static final String IGNORE_ME = "IGNORE ME!!!!";
+
     static public void validateMoves(String boardText, ChessPosition startPosition, int[][] endPositions) {
         var board = loadBoard(boardText);
         var testPiece = board.getPiece(startPosition);

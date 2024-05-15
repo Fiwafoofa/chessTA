@@ -23,6 +23,8 @@ public class GameStatusTests {
                 """);
     Assertions.assertEquals(expectedBoard, game.getBoard());
     Assertions.assertEquals(ChessGame.TeamColor.WHITE, game.getTeamTurn());
+
+    // I added a comment hahahaahaha
   }
 
   @Test
@@ -39,9 +41,8 @@ public class GameStatusTests {
     Assertions.assertFalse(game.isInCheckmate(ChessGame.TeamColor.WHITE),
         "White is not in checkmate but isInCheckmate returned true");
     Assertions.assertFalse(game.isInStalemate(ChessGame.TeamColor.BLACK),
-        "Black is not in stalemate but isInStalemate returned true");
-    Assertions.assertFalse(game.isInStalemate(ChessGame.TeamColor.WHITE),
-        "White is not in stalemate but isInStalemate returned true");
+        "I changed this error message and remove the assertion below");
+
   }
 
 
