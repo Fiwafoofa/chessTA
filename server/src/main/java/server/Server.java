@@ -8,6 +8,7 @@ import model.AuthData;
 import model.UserData;
 import response.*;
 import request.*;
+import websocket.WebsocketHandler;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -27,9 +28,11 @@ public class Server {
     Spark.staticFiles.location("web");
     Spark.notFound("<html><body style=\"color: blue\">My custom 404 page</body></html>");
 
-    Spark.get("/hello", (req, res) -> "Hello World");
-
     // Register your endpoints and handle exceptions here.
+    WebsocketHandler websocketHandler = new WebsocketHandler();
+    websocketHandler.setDaoFactory(daoFactory);
+    Spark.webSocket("/ws", websocketHandler);
+
     Spark.delete("/db", (request, response) -> {
       clearService.clear();
       return "{}";
