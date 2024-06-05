@@ -6,7 +6,7 @@ package ui;
 public class EscSeq {
 
     private static final String UNICODE_ESCAPE = "\u001b";
-    private static final String ANSI_ESCAPE = "\033";
+    // private static final String ANSI_ESCAPE = "\033";
 
     public static final String ERASE_SCREEN = UNICODE_ESCAPE + "[H" + UNICODE_ESCAPE + "[2J";
     public static final String ERASE_LINE = UNICODE_ESCAPE + "[2K";

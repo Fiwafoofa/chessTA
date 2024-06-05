@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.DAOFactory;
-import dataaccess.UserDAO;
 import dataaccess.memory.MemoryDAOFactory;
 import model.AuthData;
 import model.UserData;
