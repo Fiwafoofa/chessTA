@@ -11,6 +11,9 @@ import websocket.messages.NotificationSM;
 import java.util.Collection;
 import java.util.Scanner;
 
+import chess.ChessGame;
+import chess.ChessGame.TeamColor;
+
 public class ChessClient implements ServerMessageObserver {
 
   private static final String PRE_LOGIN_MENU = String.format("""
@@ -59,13 +62,19 @@ public class ChessClient implements ServerMessageObserver {
 
   private State uiState;
   private boolean stateChanged;
+  private TeamColor teamColor;
+  private ChessGame currChessGame;
+  private Integer gameID;
 
   private final ServerFacade serverFacade;
+  private final BoardFormatter boardFormatter;
 
   public ChessClient(String domainName) {
     serverFacade = new ServerFacade(domainName, this);
     uiState = State.PRE_LOGIN;
     stateChanged = true;
+    boardFormatter = new BoardFormatter();
+    teamColor = TeamColor.WHITE;
   }
 
   public void run() {
@@ -96,6 +105,22 @@ public class ChessClient implements ServerMessageObserver {
     scanner.close();
   }
 
+  @Override
+  public void notify(NotificationSM notification) {
+    System.out.println(notification.getMessage());
+  }
+
+  @Override
+  public void error(ErrorSM error) {
+    printError(error.getMessage());
+  }
+
+  @Override
+  public void loadGame(LoadGameSM loadGame) {
+    currChessGame = loadGame.getGame();
+    System.out.println(boardFormatter.getFormattedBoard(loadGame.getGame().getBoard(), teamColor));
+  }
+
   private void eval(String... args) throws UIException, ResponseException {
     if (args.length < 1) {
       throw new UIException("Command not found");
@@ -107,6 +132,7 @@ public class ChessClient implements ServerMessageObserver {
     }
   }
 
+  // PRE LOGIN
   private void evalPreLogin(String... args) throws UIException, ResponseException {
     String cmd = args[0];
     switch (cmd) {
@@ -125,16 +151,15 @@ public class ChessClient implements ServerMessageObserver {
 
   private void register(String username, String password, String email) throws ResponseException {
     serverFacade.register(username, password, email);
-    uiState = State.POST_LOGIN;
-    stateChanged = true;
+    changeUIState(State.POST_LOGIN);
   }
 
   private void login(String username, String password) throws ResponseException {
     serverFacade.login(username, password);
-    uiState = State.POST_LOGIN;
-    stateChanged = true;
+    changeUIState(State.POST_LOGIN);
   }
 
+  // POST LOGIN
   private void evalPostLogin(String... args) throws UIException, ResponseException {
     String cmd = args[0];
     switch (cmd) {
@@ -165,8 +190,7 @@ public class ChessClient implements ServerMessageObserver {
 
   private void logout() throws ResponseException {
     serverFacade.logout();
-    uiState = State.PRE_LOGIN;
-    stateChanged = true;
+    changeUIState(State.PRE_LOGIN);
   }
 
   private void createGame(String gameName) throws ResponseException {
@@ -177,7 +201,8 @@ public class ChessClient implements ServerMessageObserver {
 
   private void listGames() throws ResponseException {
     Collection<GameData> games = serverFacade.listGames();
-    System.out.println("Games: -------------");
+    printHelp();
+    System.out.println("Games:\n-------------");
     for (GameData game : games) {
       System.out.println(
         String.format(
@@ -193,15 +218,53 @@ public class ChessClient implements ServerMessageObserver {
   }
 
   private void joinGame(Integer gameID, String teamColor) throws ResponseException {
+    changeUIState(State.GAMEPLAY);
+    this.teamColor = teamColor == "white" ? TeamColor.WHITE : TeamColor.BLACK;
     serverFacade.joinGame(gameID, teamColor);
+    this.gameID = gameID;
   }
 
-  private void joinObserver(Integer gameID) {
-    return;
+  private void joinObserver(Integer gameID) throws ResponseException {
+    changeUIState(State.GAMEPLAY);
+    serverFacade.joinObserver(gameID);
+    this.gameID = gameID;
   }
 
-  private void evalGameplay(String... args) {
-    return;
+  // GAMEPLAY
+  private void evalGameplay(String... args) throws ResponseException {
+    String cmd = args[0];
+    switch (cmd) {
+      case "help" -> {
+        printHelp();
+      }
+      case "redraw" -> {
+        System.out.println(boardFormatter.getFormattedBoard(currChessGame.getBoard(), teamColor));
+      }
+      case "leave" -> {
+        serverFacade.leaveGame(gameID);
+      }
+      case "resign" -> {
+        serverFacade.resign(gameID);
+      }
+      case "move" -> {
+        makeMove();
+      }
+      case "highlight" -> {
+        highlight();
+      }
+      default -> {
+        System.out.println("Invalid command: " + args);
+        printHelp();
+      }
+    }
+  }
+
+  private void makeMove() {
+
+  }
+
+  private void highlight() {
+
   }
 
   private void printHelp() {
@@ -238,18 +301,10 @@ public class ChessClient implements ServerMessageObserver {
     }
   }
 
-  @Override
-  public void notify(NotificationSM notification) {
-
+  private void changeUIState(State uiState) {
+    this.uiState = uiState;
+    this.stateChanged = true;
   }
 
-  @Override
-  public void error(ErrorSM error) {
 
-  }
-
-  @Override
-  public void loadGame(LoadGameSM loadGame) {
-
-  }
 }

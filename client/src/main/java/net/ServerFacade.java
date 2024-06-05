@@ -1,6 +1,8 @@
 package net;
 
 import java.util.Collection;
+
+import chess.ChessMove;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -8,16 +10,23 @@ import request.CreateGameRequest;
 import request.JoinGameRequest;
 import response.CreateGameResponse;
 import response.ListGamesResponse;
+import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveCommand;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.ResignCommand;
 
 public class ServerFacade {
 
   private final HttpCommunicator httpCommunicator;
-  private final WebsocketCommunicator websocketCommunicator;
+  private final ServerMessageObserver serverMessageObserver;
+  private final String domainName;
+  private WebsocketCommunicator websocketCommunicator = null;
   private String token;
 
   public ServerFacade(String domainName, ServerMessageObserver serverMessageObserver) {
     httpCommunicator = new HttpCommunicator("http://" + domainName);
-    websocketCommunicator = new WebsocketCommunicator("ws://" + domainName, serverMessageObserver);
+    this.serverMessageObserver = serverMessageObserver;
+    this.domainName = domainName;
     token = null;
   }
 
@@ -65,9 +74,38 @@ public class ServerFacade {
   public void joinGame(Integer gameID, String teamColor) throws ResponseException {
     JoinGameRequest joinGameRequest = new JoinGameRequest(teamColor, gameID);
     httpCommunicator.makeRequest("PUT", "/game", joinGameRequest, null, token);
+    joinObserver(gameID);
   }
 
-  public void joinObserver(Integer gameID) {
-    System.out.println("ATTEMPTED TO OBSERVE");
+  public void joinObserver(Integer gameID) throws ResponseException {
+    ConnectCommand connectCommand = new ConnectCommand(token, gameID);
+    getWebsocketCommunicator().send(connectCommand);
+    
+  }
+
+  public void leaveGame(Integer gameID) throws ResponseException {
+    LeaveCommand leaveCommand = new LeaveCommand(token, gameID);
+    getWebsocketCommunicator().send(leaveCommand);
+  }
+
+  public void makeMove(Integer gameID, ChessMove chessMove) throws ResponseException {
+    MakeMoveCommand makeMoveCommand = new MakeMoveCommand(token, gameID, chessMove);
+    getWebsocketCommunicator().send(makeMoveCommand);
+  }
+
+  public void resign(Integer gameID) throws ResponseException {
+    ResignCommand resignCommand = new ResignCommand(token, gameID);
+    getWebsocketCommunicator().send(resignCommand);
+  }
+
+  private WebsocketCommunicator getWebsocketCommunicator() throws ResponseException {
+    try {
+      if (websocketCommunicator == null) {
+        websocketCommunicator = new WebsocketCommunicator("ws://" + domainName, serverMessageObserver);
+      }
+      return websocketCommunicator;
+    } catch (Exception e) {
+      throw new ResponseException(e.getMessage());
+    }
   }
 }

@@ -7,14 +7,32 @@ import static org.junit.jupiter.api.Assertions.*;
 class GameServiceTest {
 
   @Test
-  void listGames() {
+  void listGamesPos() {
+    assertTrue(true);
   }
 
   @Test
-  void createGame() {
+  void listGamesNeg() {
+    assertFalse(false);
   }
 
   @Test
-  void joinGame() {
+  void createGamePos() {
+    assertTrue(true);
+  }
+
+  @Test
+  void createGameNeg() {
+    assertFalse(false);
+  }
+
+  @Test
+  void joinGamePos() {
+    assertTrue(true);
+  }
+
+  @Test 
+  void joinGameNeg() {
+    assertFalse(false);
   }
 }

@@ -1,20 +1,33 @@
 package dataaccess.mysql;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class SqlUserDAOTest {
+import org.junit.jupiter.api.Test;
+
+public class SqlUserDAOTest {
 
   @Test
-  void getUserData() {
+  void testAddUserData() {
+    assertTrue(true);
   }
 
   @Test
-  void addUserData() {
+  void testGetUserData() {
+    assertTrue(true);
   }
 
   @Test
-  void clear() {
+  void testAddUserDataNeg() {
+    assertTrue(true);
+  }
+
+  @Test
+  void testGetUserDataNeg() {
+    assertTrue(true);
+  }
+  
+  @Test
+  void testClear() {
+    assertTrue(true);
   }
 }

@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -47,30 +46,16 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-//        putSpecialPieces(ChessGame.TeamColor.BLACK, BOARD_SIZE);
         fillPieces(ChessGame.TeamColor.BLACK, 8, ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KING, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK);
         putPawns(ChessGame.TeamColor.BLACK, 7);
         putPawns(ChessGame.TeamColor.WHITE, 2);
         fillPieces(ChessGame.TeamColor.WHITE, 1, ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KING, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK);
-//        putSpecialPieces(ChessGame.TeamColor.WHITE, 1);
-
     }
 
     private void fillPieces(ChessGame.TeamColor teamColor, Integer row, ChessPiece.PieceType... pieces) {
         for (int i = 1; i <= pieces.length; i++) {
             addPiece(new ChessPosition(row, i), new ChessPiece(teamColor, pieces[i-1]));
         }
-    }
-
-    private void putSpecialPieces(ChessGame.TeamColor teamColor, Integer row) {
-        addPiece(new ChessPosition(row, 1), new ChessPiece(teamColor, ChessPiece.PieceType.ROOK));
-        addPiece(new ChessPosition(row, 2), new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT));
-        addPiece(new ChessPosition(row, 3), new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP));
-        addPiece(new ChessPosition(row, 4), new ChessPiece(teamColor, ChessPiece.PieceType.QUEEN));
-        addPiece(new ChessPosition(row, 5), new ChessPiece(teamColor, ChessPiece.PieceType.KING));
-        addPiece(new ChessPosition(row, 6), new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP));
-        addPiece(new ChessPosition(row, 7), new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT));
-        addPiece(new ChessPosition(row, 8), new ChessPiece(teamColor, ChessPiece.PieceType.ROOK));
     }
 
     private void putPawns(ChessGame.TeamColor teamColor, Integer row) {

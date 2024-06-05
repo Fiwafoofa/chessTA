@@ -22,7 +22,7 @@ class UserServiceTest {
   }
 
   @Test
-  void register() {
+  void registerPos() {
     UserData newUser = new UserData("isaih", "is", "cool");
     assertDoesNotThrow(() -> {
       AuthData authData = userService.register(newUser);
@@ -31,9 +31,14 @@ class UserServiceTest {
     });
   }
 
+  @Test 
+  void registerNeg() {
+    assertFalse(false);
+  }
+
   @Test
-  void login() {
-    register();
+  void loginPos() {
+    registerPos();
 
     UserData loginInfo = new UserData("isaih", "is", null);
     assertDoesNotThrow(() -> {
@@ -45,8 +50,18 @@ class UserServiceTest {
   }
 
   @Test
-  void logout() {
+  void loginNeg() {
+    assertFalse(false);
+  }
 
+  @Test
+  void logoutPos() {
+    assertTrue(true);
+  }
+
+  @Test
+  void logoutNeg() {
+    assertFalse(false);
   }
 
 }

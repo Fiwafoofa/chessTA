@@ -116,8 +116,8 @@ public class ChessGame {
         ChessPiece chessPiece;
         ChessPosition chessPosition;
         ChessPosition kingPosition = getKingPosition(teamColor);
-        for (int row = 1; row <= board.BOARD_SIZE; row++) {
-            for (int col = 1; col <= board.BOARD_SIZE; col++) {
+        for (int row = 1; row <= ChessBoard.BOARD_SIZE; row++) {
+            for (int col = 1; col <= ChessBoard.BOARD_SIZE; col++) {
                 chessPosition = new ChessPosition(row, col);
                 chessPiece = board.getPiece(chessPosition);
                 if (chessPiece == null || chessPiece.getTeamColor() == teamColor) continue;
@@ -180,8 +180,8 @@ public class ChessGame {
     private ChessPosition getKingPosition(TeamColor teamColor) {
         ChessPosition position;
         ChessPiece piece;
-        for (int row = 1; row <= board.BOARD_SIZE; row++) {
-            for (int col = 1; col <= board.BOARD_SIZE; col++) {
+        for (int row = 1; row <= ChessBoard.BOARD_SIZE; row++) {
+            for (int col = 1; col <= ChessBoard.BOARD_SIZE; col++) {
                 position = new ChessPosition(row, col);
                 piece = board.getPiece(position);
                 if (piece != null
@@ -197,8 +197,8 @@ public class ChessGame {
     private boolean teamHasNoValidMoves(TeamColor teamColor) {
         ChessPosition chessPosition;
         ChessPiece chessPiece;
-        for (int row = 1; row <= board.BOARD_SIZE; row++) {
-            for (int col = 1; col <= board.BOARD_SIZE; col++) {
+        for (int row = 1; row <= ChessBoard.BOARD_SIZE; row++) {
+            for (int col = 1; col <= ChessBoard.BOARD_SIZE; col++) {
                 chessPosition = new ChessPosition(row, col);
                 chessPiece = board.getPiece(chessPosition);
                 if (chessPiece == null || chessPiece.getTeamColor() != teamColor) continue;

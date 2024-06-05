@@ -46,9 +46,4 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
     executeSqlStatement(sqlCommand, sql);
   }
 
-  public static void main(String[] args) throws DataAccessException {
-    var sqlUserDao = new SqlUserDAO();
-    sqlUserDao.clear();
-//    sqlUserDao.addUserData(new UserData("test1", "pass", "pass@email.com"));
-  }
 }
