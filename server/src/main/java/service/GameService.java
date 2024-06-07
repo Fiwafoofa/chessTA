@@ -50,6 +50,9 @@ public class GameService {
       throw new BadRequestException();
     }
     GameData dbGameData = daoFactory.getGameDAO().getGameData(joinGameRequest.gameID());
+    if (dbGameData == null) {
+      throw new BadRequestException("Invalid game id: " + joinGameRequest.gameID());
+    }
     AuthData userAuthData = daoFactory.getAuthDAO().getAuthData(authToken);
     String color = joinGameRequest.playerColor().toLowerCase();
     if (color.equals("white")) {

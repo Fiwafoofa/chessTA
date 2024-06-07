@@ -44,11 +44,11 @@ public class WebsocketHandler {
         }
         case RESIGN -> {
           ResignCommand resignCommand = serializer.fromJson(message, ResignCommand.class);
-          handleResign(session, resignCommand);
+          handleResign(resignCommand);
         }
         case MAKE_MOVE -> {
           MakeMoveCommand makeMoveCommand = serializer.fromJson(message, MakeMoveCommand.class);
-          handleMakeMove(session, makeMoveCommand);
+          handleMakeMove(makeMoveCommand);
         }
       }
     } catch (Exception e) {
@@ -73,19 +73,23 @@ public class WebsocketHandler {
 
     // 2
     AuthData authData = daoFactory.getAuthDAO().getAuthData(connectCommand.getAuthString());
+    NotificationSM notification = getNotification(authData, gameData);
+    connectionManager.broadcast(connectCommand.gameID, connectCommand.getAuthString(), notification);
+    connectionManager.addConnection(connectCommand.gameID, new Connection(connectCommand.getAuthString(), session));
+
+  }
+
+  private static NotificationSM getNotification(AuthData authData, GameData gameData) {
     String connectionMessage = authData.username();
-    if (gameData.whiteUsername().equals(authData.username())) {
+    if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(authData.username())) {
       connectionMessage += " joined as the white player";
-    } else if (gameData.blackUsername().equals(authData.username())) {
+    } else if (gameData.blackUsername() != null && gameData.blackUsername().equals(authData.username())) {
       connectionMessage += " joined as the black player";
     } else {
       connectionMessage += " joined as an observer";
     }
 
-    NotificationSM notification = new NotificationSM(connectionMessage);
-    connectionManager.broadcast(connectCommand.gameID, connectCommand.getAuthString(), notification);
-    connectionManager.addConnection(connectCommand.gameID, new Connection(connectCommand.getAuthString(), session));
-
+    return new NotificationSM(connectionMessage);
   }
 
   private void handleLeave(LeaveCommand leaveCommand) throws Exception {
@@ -112,7 +116,7 @@ public class WebsocketHandler {
 
   }
 
-  private void handleResign(Session session, ResignCommand resignCommand) throws Exception {
+  private void handleResign(ResignCommand resignCommand) throws Exception {
     // verify person can resign
     AuthData authData = daoFactory.getAuthDAO().getAuthData(resignCommand.getAuthString());
     GameData gameData = daoFactory.getGameDAO().getGameData(resignCommand.gameID);
@@ -137,7 +141,7 @@ public class WebsocketHandler {
 
   }
 
-  private void handleMakeMove(Session session, MakeMoveCommand makeMoveCommand) throws Exception {
+  private void handleMakeMove(MakeMoveCommand makeMoveCommand) throws Exception {
     GameData gameData = daoFactory.getGameDAO().getGameData(makeMoveCommand.gameID);
     AuthData authData = daoFactory.getAuthDAO().getAuthData(makeMoveCommand.getAuthString());
 

@@ -108,4 +108,10 @@ public class ServerFacade {
       throw new ResponseException(e.getMessage());
     }
   }
+
+  public static void main(String[] args) throws ResponseException {
+    System.out.println("clearing...");
+    new HttpCommunicator("http://localhost:8080").makeRequest("DELETE", "/db", null, null, null);
+    
+  }
 }

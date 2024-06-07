@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessPiece;
 import model.GameData;
 import net.ResponseException;
 import net.ServerFacade;
@@ -8,10 +9,11 @@ import websocket.messages.ErrorSM;
 import websocket.messages.LoadGameSM;
 import websocket.messages.NotificationSM;
 
-import java.util.Collection;
-import java.util.Scanner;
+import java.util.*;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import chess.ChessGame.TeamColor;
 
 public class ChessClient implements ServerMessageObserver {
@@ -23,7 +25,7 @@ public class ChessClient implements ServerMessageObserver {
         Help
         Login <username> <password>
         Register <username> <password> <email>
-        Quit 
+        Quit
       %s========================================================%s
       """, EscSeq.SET_TEXT_BOLD + EscSeq.SET_TEXT_COLOR_BLUE, 
       EscSeq.RESET_TEXT_COLOR + EscSeq.SET_TEXT_BLINKING,
@@ -51,8 +53,20 @@ public class ChessClient implements ServerMessageObserver {
       );
 
   private static final String GAMEPLAY_MENU = String.format("""
-      hi there :)
-      """);
+      %s================%s WELCOME TO CHESS %s==================%s
+      Help
+      Move <a3> <a2> <optional promotion piece QUEEN>
+      Highlight <a3>
+      Redraw
+      Leave
+      Resign
+      %s========================================================%s
+      """, EscSeq.SET_TEXT_BOLD + EscSeq.SET_TEXT_COLOR_BLUE, 
+      EscSeq.RESET_TEXT_COLOR + EscSeq.SET_TEXT_BLINKING,
+      EscSeq.RESET_TEXT_BLINKING + EscSeq.SET_TEXT_COLOR_BLUE,
+      EscSeq.SET_TEXT_COLOR_WHITE,
+      EscSeq.SET_TEXT_COLOR_BLUE,
+      EscSeq.RESET_TEXT_COLOR);
 
   private enum State {
     PRE_LOGIN,
@@ -64,10 +78,11 @@ public class ChessClient implements ServerMessageObserver {
   private boolean stateChanged;
   private TeamColor teamColor;
   private ChessGame currChessGame;
-  private Integer gameID;
+  private Integer actualGameID;
 
   private final ServerFacade serverFacade;
   private final BoardFormatter boardFormatter;
+  private final Map<Integer, Integer> displayGameIDsToRealGameIDs = new TreeMap<>();
 
   public ChessClient(String domainName) {
     serverFacade = new ServerFacade(domainName, this);
@@ -107,18 +122,23 @@ public class ChessClient implements ServerMessageObserver {
 
   @Override
   public void notify(NotificationSM notification) {
+    System.out.println();
     System.out.println(notification.getMessage());
+    System.out.print(">>> ");
   }
 
   @Override
   public void error(ErrorSM error) {
     printError(error.getMessage());
+    System.out.print(">>> ");
   }
 
   @Override
   public void loadGame(LoadGameSM loadGame) {
     currChessGame = loadGame.getGame();
-    System.out.println(boardFormatter.getFormattedBoard(loadGame.getGame().getBoard(), teamColor));
+    System.out.println();
+    System.out.println(boardFormatter.getFormattedBoard(currChessGame.getBoard(), teamColor, null));
+    System.out.print(">>>");
   }
 
   private void eval(String... args) throws UIException, ResponseException {
@@ -167,9 +187,7 @@ public class ChessClient implements ServerMessageObserver {
         verifyArgumentCounts(2, "<game name>", args);
         createGame(args[1]);
       }
-      case "list" -> {
-        listGames();
-      }
+      case "list" -> listGames();
       case "join" -> {
         verifyArgumentCounts(3, "<game id> <team color>", args);
         joinGame(
@@ -177,9 +195,7 @@ public class ChessClient implements ServerMessageObserver {
             args[2]
         );
       }
-      case "logout" -> {
-        logout();
-      }
+      case "logout" -> logout();
       case "observe" -> {
         verifyArgumentCounts(2, "<game id>");
         joinObserver(Integer.parseInt(args[1]));
@@ -194,95 +210,126 @@ public class ChessClient implements ServerMessageObserver {
   }
 
   private void createGame(String gameName) throws ResponseException {
-    Integer gameID = serverFacade.createGame(gameName);
+    serverFacade.createGame(gameName);
     printHelp();
-    System.out.println("Game created with game id `" + gameID + '`');
+    System.out.println("Created " + gameName);
   }
 
   private void listGames() throws ResponseException {
     Collection<GameData> games = serverFacade.listGames();
+    Integer gameIdCounter = 1;
     printHelp();
     System.out.println("Games:\n-------------");
     for (GameData game : games) {
-      System.out.println(
-        String.format(
-          "%d: %s, W: %s B: %s", 
-          game.gameID(), 
-          game.gameName(), 
-          game.whiteUsername(), 
-          game.blackUsername()
-        )
+      displayGameIDsToRealGameIDs.put(gameIdCounter, game.gameID());
+      System.out.printf(
+          "%d: %s, White: %s - Black: %s%n",
+        gameIdCounter,
+        game.gameName(),
+        game.whiteUsername(),
+        game.blackUsername()
       );
+      gameIdCounter++;
     }
     System.out.println("---------------");
   }
 
   private void joinGame(Integer gameID, String teamColor) throws ResponseException {
+    this.teamColor = teamColor.equals("white") ? TeamColor.WHITE : TeamColor.BLACK;
+    this.actualGameID = displayGameIDsToRealGameIDs.get(gameID);
+    serverFacade.joinGame(actualGameID, teamColor);
     changeUIState(State.GAMEPLAY);
-    this.teamColor = teamColor == "white" ? TeamColor.WHITE : TeamColor.BLACK;
-    serverFacade.joinGame(gameID, teamColor);
-    this.gameID = gameID;
   }
 
   private void joinObserver(Integer gameID) throws ResponseException {
+    this.actualGameID = displayGameIDsToRealGameIDs.get(gameID);
+    serverFacade.joinObserver(actualGameID);
     changeUIState(State.GAMEPLAY);
-    serverFacade.joinObserver(gameID);
-    this.gameID = gameID;
   }
 
   // GAMEPLAY
-  private void evalGameplay(String... args) throws ResponseException {
+  private void evalGameplay(String... args) throws ResponseException, UIException {
     String cmd = args[0];
     switch (cmd) {
-      case "help" -> {
-        printHelp();
-      }
-      case "redraw" -> {
-        System.out.println(boardFormatter.getFormattedBoard(currChessGame.getBoard(), teamColor));
-      }
+      case "help" -> printHelp();
+      case "redraw" -> System.out.println(boardFormatter.getFormattedBoard(currChessGame.getBoard(), teamColor, null));
       case "leave" -> {
-        serverFacade.leaveGame(gameID);
+        serverFacade.leaveGame(actualGameID);
+        changeUIState(State.POST_LOGIN);
       }
-      case "resign" -> {
-        serverFacade.resign(gameID);
-      }
+      case "resign" -> serverFacade.resign(actualGameID);
       case "move" -> {
-        makeMove();
+        verifyArgumentCounts(3, "<start pos> <end pos> <optional promotion>", args);
+        String promotionPieceStr = args.length == 4 ? args[3] : null;
+        makeMove(args[1], args[2], promotionPieceStr);
       }
       case "highlight" -> {
-        highlight();
+        verifyArgumentCounts(2, "<position>", args);
+        highlight(args[1]);
       }
       default -> {
-        System.out.println("Invalid command: " + args);
+        System.out.println("Invalid command: " + Arrays.toString(args));
         printHelp();
       }
     }
   }
 
-  private void makeMove() {
-
+  private void makeMove(
+      String startPosString,
+      String endPosString,
+      String promotionString
+  ) throws UIException, ResponseException {
+    ChessPosition startPos = parseChessPosition(startPosString);
+    ChessPosition endPos = parseChessPosition(endPosString);
+    ChessPiece.PieceType promotionPiece = promotionString == null ? null : parsePromotionPiece(promotionString);
+    ChessMove chessMove = new ChessMove(startPos, endPos, promotionPiece);
+    serverFacade.makeMove(actualGameID, chessMove);
   }
 
-  private void highlight() {
 
+  private void highlight(String positionString) throws UIException {
+    ChessPosition position = parseChessPosition(positionString);
+    System.out.println(boardFormatter.getFormattedBoard(currChessGame.getBoard(), teamColor, position));
+  }
+
+  private ChessPosition parseChessPosition(String chessPositionString) throws UIException {
+    if (chessPositionString.length() != 2) throw new UIException("Invalid position format: " + chessPositionString);
+    return new ChessPosition(
+        Integer.parseInt(String.valueOf(chessPositionString.charAt(1))),
+        chessPositionString.charAt(0)
+    );
+  }
+
+  private ChessPiece.PieceType parsePromotionPiece(String promotionPieceString) {
+    return switch (promotionPieceString) {
+      case "PAWN" -> ChessPiece.PieceType.PAWN;
+      case "BISHOP" -> ChessPiece.PieceType.BISHOP;
+      case "ROOK" -> ChessPiece.PieceType.ROOK;
+      case "KNIGHT" -> ChessPiece.PieceType.KNIGHT;
+      case "QUEEN" -> ChessPiece.PieceType.QUEEN;
+      default -> null;
+    };
   }
 
   private void printHelp() {
     switch (uiState) {
       case PRE_LOGIN -> System.out.print(PRE_LOGIN_MENU);
       case POST_LOGIN -> System.out.print(POST_LOGIN_MENU);
-      case GAMEPLAY -> System.out.print(GAMEPLAY_MENU);
+      case GAMEPLAY -> {
+        System.out.print(GAMEPLAY_MENU);
+        if (currChessGame != null) {
+          System.out.println(boardFormatter.getFormattedBoard(currChessGame.getBoard(), teamColor, null));
+        }
+      }
     }
   }
 
   private void printError(String message) {
-    System.out.println(
-      String.format(
+    System.out.printf(
         """
-        ERROR: %s
-        """, 
-        message
-      )
+            %sERROR: %s%s
+            %n""",
+      EscSeq.SET_TEXT_COLOR_RED, message, EscSeq.RESET_TEXT_COLOR
     );
   }
 
@@ -291,7 +338,7 @@ public class ChessClient implements ServerMessageObserver {
     String parameterMessage, 
     String... args
   ) throws UIException {
-    if (args.length != numArgs) {
+    if (args.length < numArgs) {
       numArgs--;
       throw new UIException(String.format(
           "Invalid num of arguments. Expected %d parameters: %s",
@@ -305,6 +352,5 @@ public class ChessClient implements ServerMessageObserver {
     this.uiState = uiState;
     this.stateChanged = true;
   }
-
 
 }

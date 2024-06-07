@@ -1,94 +1,103 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import chess.ChessGame.TeamColor;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 public class BoardFormatter {
   
   private ChessBoard chessBoard;
   private TeamColor teamColor;
   private StringBuilder builder;
-
-  private char[] labels = {' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', ' '};
-  private String edgeBGColor = EscSeq.SET_BG_COLOR_DARK_GREY;
-  private String edgeTextColor = EscSeq.SET_TEXT_COLOR_WHITE;
-  private String reset = EscSeq.RESET_BG_COLOR + EscSeq.RESET_TEXT_COLOR;
-  private String whiteSquareBGColor = EscSeq.SET_BG_COLOR_WHITE;
-  private String whiteTextColor = EscSeq.SET_TEXT_COLOR_BLUE;
-  private String blackSquareBGColor = EscSeq.SET_BG_COLOR_BLACK;
-  private String blackTextColor = EscSeq.SET_TEXT_COLOR_RED;
-  
-  // orientation things
-  private Integer start, end, valueUpdater, labelStart, labelEnd;
-  private ValueComparer comparer, labelComparer;
-
+  private static final char[] LABELS = {' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', ' '};
+  private static final String RESET = EscSeq.RESET_BG_COLOR + EscSeq.RESET_TEXT_COLOR;
   private static final String SPACING = " ";
+  private BoardConfig config;
 
+  private final Collection<ChessPosition> validPositions = new HashSet<>();
+  private ChessPosition startPosition;
 
-  public String getFormattedBoard(ChessBoard board, TeamColor color) {
+  public BoardFormatter() {
+    config = new BoardConfig();
+  }
+
+  public void setBoardConfig(BoardConfig boardConfig) {
+    config = boardConfig;
+  }
+
+  public String getFormattedBoard(ChessBoard board, TeamColor color, ChessPosition position) {
+    if (position != null) {
+      loadAllValidPositions(position);
+    }
+    startPosition = position;
     builder = new StringBuilder();
     teamColor = color;
     chessBoard = board;
-
-    setupOrientation();
     drawHeaderOrFooter();
-    for (int i = start; comparer.compareValues(i, end); i += valueUpdater) {
-      drawRow(i);
+    if (color == TeamColor.WHITE) {
+      for (int i = 8; i >= 1; i--) {
+        drawRow(i);
+      }
+    } else {
+      for (int i = 1; i <= 8; i++) {
+        drawRow(i);
+      }
     }
     drawHeaderOrFooter();
-
+    validPositions.clear();
     return builder.toString();
   }
 
-  private void setupOrientation() {
-    if (teamColor == TeamColor.WHITE) {
-      start = 8;
-      end = 1;
-      valueUpdater = -1;
-      comparer = (int x, int y) -> x >= y;
-      labelStart = 0;
-      labelEnd = labels.length - 1;
-      labelComparer = (int x, int y) -> x <= y;
-    } else {
-      start = 1;
-      end = 8;
-      valueUpdater = 1;
-      comparer = (int x, int y) -> x <= y;
-      labelStart = labels.length - 1;
-      labelEnd = 0;
-      labelComparer = (int x, int y) -> x >= y;
-    }
-  }
-
   private void drawHeaderOrFooter() {
-    builder.append(edgeBGColor + edgeTextColor);
-    for (int row = labelStart; labelComparer.compareValues(row, labelEnd); row += (valueUpdater * -1)) {
-      builder.append(SPACING + labels[row] + SPACING);
+    builder.append(config.getEdgeBGColor()).append(config.getEdgeTextColor());
+    if (teamColor == TeamColor.WHITE) {
+      for (char label : LABELS) {
+        builder.append(SPACING).append(label).append(SPACING);
+      }
+    } else {
+      for (int i = LABELS.length-1; i >= 0; i--) {
+        builder.append(SPACING).append(LABELS[i]).append(SPACING);
+      }
     }
-    builder.append(reset).append('\n');
+    builder.append(RESET).append('\n');
   }
 
   private void drawRow(Integer row) {
     drawSide(row);
-    for (int col = start; comparer.compareValues(col, end); col += valueUpdater) {
-      drawSquare(row, col);
+    if (teamColor == TeamColor.WHITE) {
+      for (int col = 1; col <= 8; col++) {
+        drawSquare(row, col);
+      }
+    } else {
+      for (int col = 8; col >= 1; col--) {
+        drawSquare(row, col);
+      }
     }
     drawSide(row);
     builder.append('\n');
   }
 
   private void drawSide(Integer row) {
-    builder.append(edgeBGColor + edgeTextColor);
-    builder.append(SPACING + row + SPACING);
-    builder.append(reset);
+    builder.append(config.getEdgeBGColor()).append(config.getEdgeTextColor());
+    builder.append(SPACING).append(row).append(SPACING);
+    builder.append(RESET);
   }
 
   private void drawSquare(Integer row, Integer col) {
-    String backgroundColor = ((row % 2 == 1) == (col % 2 == 0)) 
-      ? blackSquareBGColor 
-      : whiteSquareBGColor;
+    String backgroundColor = ((row % 2 == 1) != (col % 2 == 0))
+      ? config.getBlackSquareBGColor()
+      : config.getWhiteSquareBGColor();
+    ChessPosition pos = new ChessPosition(row, col);
+    if (!validPositions.isEmpty() && validPositions.contains(pos)) {
+      backgroundColor = backgroundColor.equals(config.getBlackSquareBGColor())
+          ? config.getHighlightBlackSquareBGColor()
+          : config.getHighlightWhiteSquareBGColor();
+    }
+    if (pos.equals(startPosition)) {
+      backgroundColor = config.getHighlightPositionBGColor();
+    }
     builder.append(backgroundColor);
     drawPieceChar(row, col);
   }
@@ -107,28 +116,31 @@ public class BoardFormatter {
         case ChessPiece.PieceType.QUEEN -> "Q";
         case ChessPiece.PieceType.KING -> "K";
       };
-
       if (piece.getTeamColor() == TeamColor.WHITE) {
-        builder.append(whiteTextColor);
+        builder.append(config.getWhiteTextColor());
       } else {
-        builder.append(blackTextColor);
+        builder.append(config.getBlackTextColor());
       }
     }
-    builder.append(SPACING + pieceVal + SPACING);
+    builder.append(SPACING).append(pieceVal).append(SPACING);
   }
 
-  @FunctionalInterface
-  public static interface ValueComparer {
-    boolean compareValues(int x, int y);
+  private void loadAllValidPositions(ChessPosition position) {
+    ChessGame game = new ChessGame();
+    game.setBoard(chessBoard);
+    Collection<ChessMove> validMoves = game.validMoves(position);
+    for (ChessMove chessMove : validMoves) {
+      validPositions.add(chessMove.getEndPosition());
+    }
   }
 
   public static void main(String[] args) {
     ChessBoard chessBoard = new ChessBoard();
     chessBoard.resetBoard();
-    String s = new BoardFormatter().getFormattedBoard(chessBoard, TeamColor.WHITE);
+    String s = new BoardFormatter().getFormattedBoard(chessBoard, TeamColor.WHITE, null);
     System.out.println(s);
 
-    s = new BoardFormatter().getFormattedBoard(chessBoard, TeamColor.BLACK);
+    s = new BoardFormatter().getFormattedBoard(chessBoard, TeamColor.BLACK, null);
     System.out.println(s);
   }
 

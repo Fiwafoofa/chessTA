@@ -14,7 +14,7 @@ public class WebsocketCommunicator extends Endpoint {
 
   public WebsocketCommunicator(String serverUrl, ServerMessageObserver serverMessageObserver) throws Exception {
     observer = serverMessageObserver;
-    URI uri = new URI(serverUrl);
+    URI uri = new URI(serverUrl + "/ws");
     WebSocketContainer container = ContainerProvider.getWebSocketContainer();
     this.session = container.connectToServer(this, uri);
 
@@ -33,7 +33,10 @@ public class WebsocketCommunicator extends Endpoint {
             observer.error(errorSM);
           }
           case ServerMessage.ServerMessageType.NOTIFICATION -> {
-            NotificationSM notificationSM = serializer.fromJson(serverMessageJson, NotificationSM.class);
+            NotificationSM notificationSM = serializer.fromJson(
+              serverMessageJson, 
+              NotificationSM.class
+            );
             observer.notify(notificationSM);
           }
         }
