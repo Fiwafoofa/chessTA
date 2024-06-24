@@ -6,6 +6,7 @@ import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import response.UnauthorizedException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,17 +51,27 @@ class UserServiceTest {
 
   @Test
   void loginNeg() {
-    assertFalse(false);
+    registerPos();
+
+    UserData loginInfo = new UserData("isaih", "wrong password", null);
+    assertThrows(UnauthorizedException.class, () -> {
+      userService.login(loginInfo);
+    });
   }
 
   @Test
   void logoutPos() {
-    assertTrue(true);
+    assertDoesNotThrow(() -> {
+      AuthData authData = userService.register(new UserData("isaih", "is", "cool"));
+      userService.logout(authData.authToken());
+    });
   }
 
   @Test
   void logoutNeg() {
-    assertFalse(false);
+    assertThrows(UnauthorizedException.class, () -> {
+      userService.logout("myRandomBananaToken");
+    });
   }
 
 }
