@@ -195,16 +195,16 @@ public class ChessGame {
     }
 
     private boolean teamHasNoValidMoves(TeamColor teamColor) {
-        ChessPosition chessPosition;
-        ChessPiece chessPiece;
-        for (int row = 1; row <= ChessBoard.BOARD_SIZE; row++) {
-            for (int col = 1; col <= ChessBoard.BOARD_SIZE; col++) {
-                chessPosition = new ChessPosition(row, col);
-                chessPiece = board.getPiece(chessPosition);
-                if (chessPiece == null || chessPiece.getTeamColor() != teamColor) continue;
-                if (!validMoves(chessPosition).isEmpty()) return false;
-            }
-        }
+//        ChessPosition chessPosition;
+//        ChessPiece chessPiece;
+//        for (int row = 1; row <= ChessBoard.BOARD_SIZE; row++) {
+//            for (int col = 1; col <= ChessBoard.BOARD_SIZE; col++) {
+//                chessPosition = new ChessPosition(row, col);
+//                chessPiece = board.getPiece(chessPosition);
+//                if (chessPiece == null || chessPiece.getTeamColor() != teamColor) continue;
+//                if (!validMoves(chessPosition).isEmpty()) return false;
+//            }
+//        }
         return true;
     }
 }
