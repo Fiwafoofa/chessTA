@@ -2,7 +2,6 @@ package net;
 
 import java.util.Collection;
 
-import chess.ChessGame;
 import chess.ChessMove;
 import model.AuthData;
 import model.GameData;
@@ -72,7 +71,7 @@ public class ServerFacade {
     return response.getGameID();
   }
 
-  public void joinGame(Integer gameID, ChessGame.TeamColor teamColor) throws ResponseException {
+  public void joinGame(Integer gameID, String teamColor) throws ResponseException {
     JoinGameRequest joinGameRequest = new JoinGameRequest(teamColor, gameID);
     httpCommunicator.makeRequest("PUT", "/game", joinGameRequest, null, token);
     joinObserver(gameID);

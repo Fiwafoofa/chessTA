@@ -1,9 +1,7 @@
 package request;
 
-import chess.ChessGame;
-
 public record JoinGameRequest(
-    ChessGame.TeamColor playerColor,
+    String playerColor,
     Integer gameID
 ) {
 }

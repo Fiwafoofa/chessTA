@@ -1,6 +1,5 @@
 package service;
 
-import chess.ChessGame;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import response.*;
@@ -55,7 +54,8 @@ public class GameService {
       throw new BadRequestException("Invalid game id: " + joinGameRequest.gameID());
     }
     AuthData userAuthData = daoFactory.getAuthDAO().getAuthData(authToken);
-    if (joinGameRequest.playerColor() == ChessGame.TeamColor.WHITE) {
+    String color = joinGameRequest.playerColor().toLowerCase();
+    if (color.equals("white")) {
       if (dbGameData.whiteUsername() == null) {
         daoFactory.getGameDAO().updateGameData(
           new GameData(
@@ -70,7 +70,7 @@ public class GameService {
         throw new AlreadyTakenException();
       }
       // user rejoining
-    } else if (joinGameRequest.playerColor() == ChessGame.TeamColor.BLACK) {
+    } else if (color.equals("black")) {
       if (dbGameData.blackUsername() == null) {
         daoFactory.getGameDAO().updateGameData(
           new GameData(
@@ -86,5 +86,6 @@ public class GameService {
       }
       // user rejoining
     }
+    // do nothing; observer.
   }
 }
