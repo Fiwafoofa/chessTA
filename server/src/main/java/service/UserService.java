@@ -1,5 +1,7 @@
 package service;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import response.AlreadyTakenException;
 import response.BadRequestException;
 import response.UnauthorizedException;
@@ -11,6 +13,7 @@ import org.mindrot.jbcrypt.BCrypt;
 public class UserService {
 
   private final DAOFactory daoFactory;
+  private static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
   public UserService(DAOFactory daoFactory) {
     this.daoFactory = daoFactory;
@@ -23,7 +26,8 @@ public class UserService {
     if (daoFactory.getUserDAO().getUserData(userData.username()) != null) {
       throw new AlreadyTakenException();
     }
-    String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+//    String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+    String hashedPassword = PASSWORD_ENCODER.encode(userData.password());
     UserData hashedUserData = new UserData(userData.username(), hashedPassword, userData.email());
     daoFactory.getUserDAO().addUserData(hashedUserData);
 
@@ -36,7 +40,7 @@ public class UserService {
     UserData dbUserData = daoFactory.getUserDAO().getUserData(userData.username());
     if (dbUserData == null
         || !userData.username().equals(dbUserData.username())
-        || !BCrypt.checkpw(userData.password(), dbUserData.password())) {
+        || !PASSWORD_ENCODER.matches(userData.password(), dbUserData.password())) { // !BCrypt.checkpw(userData.password(), dbUserData.password())
       throw new UnauthorizedException();
     }
     AuthData authData = AuthData.generateAuthData(userData.username());
