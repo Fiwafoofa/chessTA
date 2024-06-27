@@ -64,10 +64,15 @@
             <scope>test</scope>
             <version>1.0.0</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.glassfish.tyrus.bundles</groupId>-->
+<!--            <artifactId>tyrus-standalone-client</artifactId>-->
+<!--            <version>1.15</version>-->
+<!--        </dependency>-->
         <dependency>
-            <groupId>org.glassfish.tyrus.bundles</groupId>
-            <artifactId>tyrus-standalone-client</artifactId>
-            <version>1.15</version>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-client</artifactId>
+            <version>10.0.6</version>
         </dependency>
     </dependencies>
 

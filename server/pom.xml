@@ -91,10 +91,21 @@
 <!--            <version>0.4</version>-->
 <!--        </dependency>-->
         <dependency>
-            <groupId>org.glassfish.tyrus.bundles</groupId>
-            <artifactId>tyrus-standalone-client</artifactId>
-            <version>1.15</version>
-            <scope>test</scope>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>6.3.1</version> <!-- Ensure you use the latest version -->
+        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.glassfish.tyrus.bundles</groupId>-->
+<!--            <artifactId>tyrus-standalone-client</artifactId>-->
+<!--            <version>1.15</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-client</artifactId>
+            <version>10.0.6</version>
         </dependency>
         <dependency>
             <groupId>edu.byu.cs240</groupId>
@@ -104,11 +115,6 @@
             <systemPath>${pom.basedir}/lib/passoff-dependencies.jar</systemPath>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-            <version>6.3.1</version> <!-- Ensure you use the latest version -->
-        </dependency>
     </dependencies>
 
 
