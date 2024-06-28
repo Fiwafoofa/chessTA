@@ -28,11 +28,17 @@ public class Server {
     Spark.staticFiles.location("web");
     Spark.notFound("<html><body style=\"color: blue\">My custom 404 page</body></html>");
 
-    // Register your endpoints and handle exceptions here.
     WebsocketHandler websocketHandler = new WebsocketHandler();
     websocketHandler.setDaoFactory(daoFactory);
     Spark.webSocket("/ws", websocketHandler);
 
+    Spark.before((request, response) -> {
+      response.header("Access-Control-Allow-Origin", "*");
+        response.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        response.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    });
+
+    // Register your endpoints and handle exceptions here.
     Spark.delete("/db", (request, response) -> {
       clearService.clear();
       return "{}";
