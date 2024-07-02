@@ -35,6 +35,7 @@ export const PostLogin = () => {
     e.preventDefault();
     try {
       await serverFacade.doJoinGame(gameId, selectedColor);
+      navigate('/gameplay');
     } catch (e) {
       setErrorMessage(e.message);
     }
@@ -44,6 +45,7 @@ export const PostLogin = () => {
     e.preventDefault();
     try {
       await serverFacade.doObserveGame(gameId);
+      navigate('/gameplay');
     } catch (e) {
       setErrorMessage(e.message);
     }
