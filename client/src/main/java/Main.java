@@ -1,3 +1,4 @@
+import server.Server;
 import ui.ChessClient;
 
 public class Main {
@@ -9,6 +10,7 @@ public class Main {
         } else {
             domainName = args[0];
         }
+        new Server().run(8080);
         new ChessClient(domainName).run();
     }
 }

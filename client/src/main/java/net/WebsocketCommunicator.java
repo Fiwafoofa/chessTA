@@ -10,7 +10,7 @@ public class WebsocketCommunicator extends Endpoint {
 
   private final Gson serializer = new Gson();
   private final ServerMessageObserver observer;
-  private Session session;
+  private final Session session;
 
   public WebsocketCommunicator(String serverUrl, ServerMessageObserver serverMessageObserver) throws Exception {
     observer = serverMessageObserver;
